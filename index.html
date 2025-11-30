@@ -34,6 +34,18 @@
       font-weight: 500;
     }
     button:hover { background: #005a9e; }
+
+    /* SEMBUNYIKAN DARI SCREEN READER */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     #filename {
       padding: 8px 12px;
       border: 1px solid #cccccc;
@@ -52,21 +64,33 @@
       resize: none;
       outline: none;
     }
-    .info { font-size: 13px; color: #666; margin-left: auto; }
+    #footer-info {
+      padding: 10px 20px;
+      background: #f9f9f9;
+      border-top: 1px solid #eee;
+      font-size: 13px;
+      color: #555;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
-  <div id="toolbar">
-    <button onclick="newFile()">New</button>
-    <button onclick="openFile()">Open</button>
-    <button onclick="saveFile()">Save</button>
-    <button onclick="downloadFile()">Download</button>
-    <input type="text" id="filename" placeholder="nama-file.txt" value="tanpa-judul.txt"/>
-    <span class="info">Ctrl+S = Save  Ctrl+O = Open</span>
+  <!-- Toolbar tetap kelihatan tapi tombol-tombol disembunyikan dari screen reader -->
+  <div id="toolbar" role="region" aria-label="Toolbar">
+    <button onclick="newFile()" aria-hidden="true">New</button>
+    <button onclick="openFile()" aria-hidden="true">Open</button>
+    <button onclick="saveFile()" aria-hidden="true">Save</button>
+    <button onclick="downloadFile()" aria-hidden="true">Download</button>
+    <input type="text" id="filename" placeholder="nama-file.txt" value="tanpa-judul.txt" aria-label="Nama file"/>
   </div>
 
   <textarea id="editor" spellcheck="false" placeholder="Ketik apa saja di sini..."></textarea>
+
+  <!-- Info shortcut dipindah ke bawah dan bisa dibaca screen reader -->
+  <div id="footer-info">
+    Shortcut: Ctrl + S = Simpan  Ctrl + O = Buka file
+  </div>
 
   <input type="file" id="fileInput" style="display:none" accept=".txt,text/plain"/>
 
@@ -122,9 +146,7 @@
     URL.revokeObjectURL(url);
   }
 
-  function downloadFile() {
-    saveFile();
-  }
+  function downloadFile() { saveFile(); }
 </script>
 
 </body>
