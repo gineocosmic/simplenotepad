@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Notepad</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #ffffff;
+      color: #000000;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #toolbar {
+      background: #f3f3f3;
+      padding: 10px;
+      border-bottom: 1px solid #dddddd;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    button {
+      padding: 8px 14px;
+      background: #007acc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover { background: #005a9e; }
+    #filename {
+      padding: 8px 12px;
+      border: 1px solid #cccccc;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 220px;
+    }
+    textarea {
+      flex: 1;
+      background: white;
+      color: #000000;
+      border: none;
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.6;
+      resize: none;
+      outline: none;
+    }
+    .info { font-size: 13px; color: #666; margin-left: auto; }
+  </style>
+</head>
+<body>
+
+  <div id="toolbar">
+    <button onclick="newFile()">New</button>
+    <button onclick="openFile()">Open</button>
+    <button onclick="saveFile()">Save</button>
+    <button onclick="downloadFile()">Download</button>
+    <input type="text" id="filename" placeholder="nama-file.txt" value="tanpa-judul.txt"/>
+    <span class="info">Ctrl+S = Save  Ctrl+O = Open</span>
+  </div>
+
+  <textarea id="editor" spellcheck="false" placeholder="Ketik apa saja di sini..."></textarea>
+
+  <input type="file" id="fileInput" style="display:none" accept=".txt,text/plain"/>
+
+<script>
+  const editor = document.getElementById("editor");
+  const fileInput = document.getElementById("fileInput");
+  const filenameInput = document.getElementById("filename");
+
+  editor.focus();
+
+  document.addEventListener("keydown", e => {
+    if (e.ctrlKey && e.key === "s") {
+      e.preventDefault();
+      saveFile();
+    }
+    if (e.ctrlKey && e.key === "o") {
+      e.preventDefault();
+      openFile();
+    }
+  });
+
+  function newFile() {
+    editor.value = "";
+    filenameInput.value = "tanpa-judul.txt";
+    editor.focus();
+  }
+
+  function openFile() {
+    fileInput.click();
+  }
+
+  fileInput.addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      editor.value = ev.target.result;
+      filenameInput.value = file.name;
+      editor.focus();
+    };
+    reader.readAsText(file);
+  });
+
+  function saveFile() {
+    const text = editor.value;
+    const filename = filenameInput.value || "tanpa-judul.txt";
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadFile() {
+    saveFile();
+  }
+</script>
+
+</body>
+</html>
