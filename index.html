@@ -17,7 +17,7 @@
     #toolbar {
       background: #f3f3f3;
       padding: 10px;
-      border-bottom: 1px solid #dddddd;
+      border-bottom: 1px solid #ddd;
       display: flex;
       gap: 12px;
       align-items: center;
@@ -31,41 +31,34 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-weight: 500;
     }
     button:hover { background: #005a9e; }
-
-    /* SEMBUNYIKAN DARI SCREEN READER */
-    .sr-only {
-      position: absolute;
-      width: 1px; height: 1px;
-      padding: 0; margin: -1px;
-      overflow: hidden;
-      clip: rect(0,0,0,0);
-      white-space: nowrap;
-      border: 0;
-    }
-
     #filename {
       padding: 8px 12px;
-      border: 1px solid #cccccc;
+      border: 1px solid #ccc;
       border-radius: 4px;
       font-size: 14px;
       width: 220px;
     }
-    textarea {
+    /* GANTI TEXTAREA JADI DIV YANG BISA DIEDIT */
+    #editor {
       flex: 1;
       background: white;
       color: #000000;
-      border: none;
       padding: 20px;
       font-size: 16px;
       line-height: 1.6;
-      resize: none;
       outline: none;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    #editor:empty:before {
+      content: "Ketik apa saja di sini...";
+      color: #999;
     }
     #footer-info {
-      padding: 10px 20px;
+      padding: 10px;
       background: #f9f9f9;
       border-top: 1px solid #eee;
       font-size: 13px;
@@ -76,7 +69,6 @@
 </head>
 <body>
 
-  <!-- Toolbar tetap kelihatan tapi tombol-tombol disembunyikan dari screen reader -->
   <div id="toolbar" role="region" aria-label="Toolbar">
     <button onclick="newFile()" aria-hidden="true">New</button>
     <button onclick="openFile()" aria-hidden="true">Open</button>
@@ -85,9 +77,9 @@
     <input type="text" id="filename" placeholder="nama-file.txt" value="tanpa-judul.txt" aria-label="Nama file"/>
   </div>
 
-  <textarea id="editor" spellcheck="false" placeholder="Ketik apa saja di sini..."></textarea>
+  <!-- INI YANG BARU: div contenteditable -->
+  <div id="editor" contenteditable="true" aria-label="Area teks notepad"></div>
 
-  <!-- Info shortcut dipindah ke bawah dan bisa dibaca screen reader -->
   <div id="footer-info">
     Shortcut: Ctrl + S = Simpan  Ctrl + O = Buka file
   </div>
@@ -101,33 +93,26 @@
 
   editor.focus();
 
+  // Shortcut keyboard
   document.addEventListener("keydown", e => {
-    if (e.ctrlKey && e.key === "s") {
-      e.preventDefault();
-      saveFile();
-    }
-    if (e.ctrlKey && e.key === "o") {
-      e.preventDefault();
-      openFile();
-    }
+    if (e.ctrlKey && e.key === "s") { e.preventDefault(); saveFile(); }
+    if (e.ctrlKey && e.key === "o") { e.preventDefault(); openFile(); }
   });
 
   function newFile() {
-    editor.value = "";
+    editor.innerHTML = "";
     filenameInput.value = "tanpa-judul.txt";
     editor.focus();
   }
 
-  function openFile() {
-    fileInput.click();
-  }
+  function openFile() { fileInput.click(); }
 
   fileInput.addEventListener("change", e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(ev) {
-      editor.value = ev.target.result;
+      editor.textContent = ev.target.result;  // pakai textContent biar aman
       filenameInput.value = file.name;
       editor.focus();
     };
@@ -135,7 +120,7 @@
   });
 
   function saveFile() {
-    const text = editor.value;
+    const text = editor.textContent || "";
     const filename = filenameInput.value || "tanpa-judul.txt";
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
